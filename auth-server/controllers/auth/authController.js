@@ -123,7 +123,7 @@ const userController = {
 
             // would need to persist refresh token, either redis in-memory or on the database
 
-           return res.status(Define.OK).json(ApiResponse('Login successful', {...payload,token : JWTtoken, refresh : JWTRefreshToken}));
+           return res.status(Define.OK).json(ApiResponse('Login successful', {...payload,token : JWTtoken}));
 
         }catch(e){
 

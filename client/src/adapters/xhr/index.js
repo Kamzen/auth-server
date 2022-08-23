@@ -30,11 +30,11 @@ axiosInstance?.interceptors.request.use(
 
     console.log('token expired');
 
-    const refreshToken = localStorage.getItem('refresh') ? localStorage.getItem('refresh') : null;
+    // const refreshToken = localStorage.getItem('refresh') ? localStorage.getItem('refresh') : null;
 
     const resp = await axios({
       url : `${BASE_URL}/auth/refresh`,
-      data : { 'refresh' : refreshToken },
+      // data : { 'refresh' : refreshToken },
       method : 'POST',
       withCredentials : true
     });

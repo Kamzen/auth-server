@@ -152,9 +152,9 @@ const userController = {
 
         try{
             // get token from request params
-            const { refresh } = req.body;
+            // const { refresh } = req.body;
 
-            // const refresh = req.cookies[process.env.COOKIE_REFRESH_TOKEN];
+            const refresh = req.cookies[process.env.COOKIE_REFRESH_TOKEN];
 
             // verify token, but you would to check if the token is there somewhere
             const usr = verifyJWTRefreshToken(refresh);

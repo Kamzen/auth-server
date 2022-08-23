@@ -1,95 +1,57 @@
-import { Fragment, useState } from "react";
 
-import AppBar from "@mui/material/AppBar";
-import { Button, IconButton, Menu, MenuItem, Toolbar, Typography } from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
-// import { AccountCircle } from "@mui/icons-material";
-import AdbIcon from "@mui/icons-material/Adb";
-import { Box } from "@mui/system";
+
+import { Link } from 'react-router-dom';
+import img from '../../../images/default.jpg';
 
 const TopNavigation = () => {
-  const [anchorElNav, setAnchorElNav] = useState(null);
-
-  const pages = ["Menu Item 1", "Menu Item 2", "Menu Item 3"];
-
-  const handleOpenNavMenu = (e) => {
-    setAnchorElNav(e.currentTarget);
-  };
-
-  const handleCloseElNav = () => {
-    setAnchorElNav(null);
-  };
 
   return (
-    <Fragment>
-      <AppBar   position="fixed">
-        <Toolbar>
-          <AdbIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
 
-          <Typography
-            component={"div"}
-            variant="h6"
-            noWrap
-            sx={{
-              display: { xs: "none", md: "flex" },
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".3em",
-              mr : 2
-            }}
-          >
-            AUTH
-          </Typography>
+      <div className="container-fluid">
+        <Link className="navbar-brand" to={'/home'}>Auth Server</Link>
 
-          <Box  sx={{ 
-                flexGrow: 1, display: { xs: "none", md: "flex" } 
-                }}>
-            {pages.map((page) => (
-              <Button
-                key={page}
-                onClick={handleCloseElNav}
-                sx={{ my: 2, color: "white", display: "block" }}
-              >
-                {page}
-              </Button>
-            ))}
-          </Box>
+        <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span className="navbar-toggler-icon"></span>
+        </button>
 
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            sx={{ display: { xs: "flex", md: "none" } }}
-            onClick={handleOpenNavMenu}
-          >
-            <MenuIcon />
-          </IconButton>
+        <div className="collapse navbar-collapse" id="navbarNav" style={{marginLeft : 'auto', marginRight : 0}}>
+        <ul className="navbar-nav mb-2 mb-lg-0">
+            {
+              localStorage.getItem('userInfo')?.role === 'super-admin' ?
+              <>
+                <li className="nav-item">
+                  <Link to={'#'} className="nav-link"><span>Admin Control Panel</span></Link>
+                </li>
+              </>
+              : 
+              ''
+            }
+          </ul>
+          <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
+            {
+              !localStorage.getItem('userInfo') ?
+              <>
+                <li className="nav-item">
+                  <Link to={'#'} className="nav-link"><button className='btn btn-secondary' style={{width : '100px'}}>Login</button></Link>
+                </li>
+                <li className="nav-item">
+                  <Link to={'#'} className="nav-link"><button className='btn btn-secondary' style={{width : '100px'}}>Register</button></Link>
+                </li>
+              </>
+              : 
+              <li className='nav-item'>
+                <Link to={'#'} className="nav-link">
+                  <img src={img} alt={'Profile Pic'} style={{width : '28px', height : '28px', borderRadius : '50%'}} />
+                </Link>
+              </li>
+            }
+          </ul>
+      </div>
 
-          <Menu
-            id="app-menu-bar"
-            anchorEl={anchorElNav}
-            anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "left",
-            }}
-            keepMounted
-            transformOrigin={{
-              vertical: "top",
-              horizontal: "left",
-            }}
-            open={Boolean(anchorElNav)}
-            onClose={handleCloseElNav}
-            sx={{ display: { xs: "block", md: "none" } }}
-          >
-            {pages.map((page) => (
-              <MenuItem key={page}>
-                <Typography>{page}</Typography>
-              </MenuItem>
-            ))}
-          </Menu>
-        </Toolbar>
-      </AppBar>
-    </Fragment>
+      </div>
+      
+    </nav>
   );
 };
 

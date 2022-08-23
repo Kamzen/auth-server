@@ -5,7 +5,7 @@ const { ApiResponse, ApiError} = require('../../utils/response');
 const { User } = require('../../models');
 const { Op } = require("sequelize");
 const Helper = require('../../utils/Helper');
-const { verifyJWTtoken, getJWTtoken, verifyJWTRefreshToken } = require('../../utils/Helper');
+const { getJWTtoken, verifyJWTRefreshToken } = require('../../utils/Helper');
 
 
 
@@ -27,7 +27,7 @@ const userController = {
              * Signing up new usr
              */
             const data = req.body;
-            console.log(data)
+            // console.log(data)
 
             const ACCOUNT_TYPES = ['user','admin','superadmin'];
 
@@ -38,7 +38,6 @@ const userController = {
             if(isEmailTaken) throw new ApiError(Define.UNPROCESSED, "Email Already Exist") // if email is taken return an error object
 
             const isUsernameTaken = await User.findOne({where : { username : data.username }}); // check if username exist
-
             
             if(isUsernameTaken) throw new ApiError(Define.UNPROCESSED, "Username Already Exist") // if username exist return error object
 
@@ -78,7 +77,7 @@ const userController = {
             // destructure email & password from request body
             const { email, password } = req.body;
 
-            // check if usr email exist
+            // check if usr email/username exist
 
             const usr = await User.findOne({
                 where : {
@@ -91,14 +90,15 @@ const userController = {
 
             // if no user found throw error
 
-            if(!usr) throw new ApiError(Define.NOT_FOUND, 'Email/Username and password incorrect')
+            if(!usr) throw new ApiError(Define.UNPROCESSED, 'Email/Username or password incorrect')
+            
             // check if passwords matches
 
             const isCorrectPassword = await bcrypt.compare(password, usr.password);
 
             // if passwords does not match
 
-            if(!isCorrectPassword) throw new ApiError(Define.NOT_FOUND, 'Email/Username and password incorrect')
+            if(!isCorrectPassword) throw new ApiError(Define.UNPROCESSED, 'Email/Username or password incorrect')
 
             // delete usr.password
 
@@ -116,11 +116,14 @@ const userController = {
             const JWTRefreshToken = Helper.getJWTtoken(payload);
 
             // set token to cookie
-            res.cookie(process.env.ACCESS_SECRET_TOKEN,JWTtoken,Define.SESSION_COOKIE_OPTIONS);
+            res.cookie(process.env.COOKIE_ACCESS_TOKEN,JWTtoken,Define.SESSION_COOKIE_OPTIONS);
+
+            // using cookie to store refresh token
+            res.cookie(process.env.COOKIE_REFRESH_TOKEN, JWTRefreshToken, Define.REFRESH_SESSION_COOKIE_OPTIONS);
 
             // would need to persist refresh token, either redis in-memory or on the database
 
-           return res.status(Define.OK).json(ApiResponse('Login successful', {token : JWTtoken, refresh : JWTRefreshToken}));
+           return res.status(Define.OK).json(ApiResponse('Login successful', {...payload,token : JWTtoken, refresh : JWTRefreshToken}));
 
         }catch(e){
 
@@ -128,13 +131,17 @@ const userController = {
         }
 
     },
-    // check if usr is logged in
-    isLoggedIn : (req,res, next) => {
+    /**
+     * @description // check if usr is logged in
+     */
+    getUserInfo : (req,res, next) => {
 
         try{
 
             // get token from request cookies
-            const token = req.cookies[process.env.ACCESS_SECRET_TOKEN];
+            const token = req.cookies[process.env.COOKIE_ACCESS_TOKEN];
+
+            // console.log(req.cookies);
 
             // if token not defined
             if(!token) throw new ApiError(Define.UNAUTHORIZED, 'User not authorized');
@@ -152,42 +159,55 @@ const userController = {
             
 
         }catch(e){
-            console.log(e)
+
              next(e);
 
         }
 
     },
-
+     /**
+     * @description refresh token controller function
+     */
     refreshToken : (req,res,next) => {
 
-        // get token from request params
-        const { refreshToken } = req.params;
+        try{
+            // get token from request params
+            const { refresh } = req.body;
 
-        // verify token, but you would to check if the token is there somewhere
-        const usr = verifyJWTRefreshToken(refreshToken);
+            // const refresh = req.cookies[process.env.COOKIE_REFRESH_TOKEN];
 
-        delete usr.iat;
+            // verify token, but you would to check if the token is there somewhere
+            const usr = verifyJWTRefreshToken(refresh);
 
-        // generate a new token
-        const token = getJWTtoken(usr, '100s');
+            delete usr.iat;
 
-        // set new token to cookie
-        res.cookie(process.env.ACCESS_SECRET_TOKEN,token,Define.SESSION_COOKIE_OPTIONS);
+            // update signed access token
+            const token = getJWTtoken(usr, '100s');
 
-        return res.status(Define.OK).json(ApiResponse('Token refreshed successful', {token : token}));
+            // update token to cookie
+            res.cookie(process.env.COOKIE_ACCESS_TOKEN,token,Define.SESSION_COOKIE_OPTIONS);
+            // console.log(req.cookies);
+            return res.status(Define.OK).json(ApiResponse('Token refreshed successful', {token : token}));
+
+        }catch(e){
+
+            next(e);
+
+        }
 
     },
 
-    // logout controller function
+    /**
+     * @description logout controller function
+     */
     logout : (req,res,next) => {
 
         try{
 
             // clear cookie token
-            res.clearCookie(process.env.ACCESS_SECRET_TOKEN);
+            res.clearCookie(process.env.COOKIE_ACCESS_TOKEN);
             req.user = null;
-            return res.status(Define.OK).json(ApiResponse('Logout successful',{ user : null }))
+            return res.status(Define.OK).json(ApiResponse('Logout successful',{ user : null }));
 
         }catch(e){
 

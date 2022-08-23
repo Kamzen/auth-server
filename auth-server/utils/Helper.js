@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { ApiError } = require('./response');
+const { randomBytes } = require('node:crypto');
 
 module.exports = {
 
@@ -10,6 +11,7 @@ module.exports = {
 
         }else{
 
+            console.log('lifetime token')
             return jwt.sign(payload, process.env.REFRESH_ACCESS_TOKEN);
 
         }
@@ -49,6 +51,10 @@ module.exports = {
 
         }
 
+    },
+
+    createApiKey : () => {
+        console.log(randomBytes)
     }
 
 }

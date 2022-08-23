@@ -1,45 +1,42 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useEffect } from "react";
-import AxiosInstance from "../../adapters/xhr";
+import { useState } from "react";
 
 const Register = () => {
+  const [userData, setUserData] = useState({
+    email: "",
+    password: "",
+    username: "",
+    firstName: "",
+    lastName: "",
+    type: "user",
+  });
 
-  useEffect(() => {
 
-    (async () => {
-        const resp = await AxiosInstance.get('http://localhost:5000/auth/authorized');
 
-        console.log(resp);
-        
-    })()
+  const handleChange = (e) => {
+    setUserData({ ...userData, [e.target.name]: e.target.value });
+  };
 
-  },[])
+  const navigate = useNavigate();
 
   const signUp = async (e) => {
     e.preventDefault();
-    const data = new FormData(document.getElementById("login-form"));
 
-    data.append("type", "user");
+    try {
 
-    const resp = await axios({
-      url: "http://localhost:5000/auth/authorized",
-      method: "GET",
-      data: {
-        type: "user",
-        email: "kamzen1994@gmail.com",
-        password: "@Kamzen1998",
-        username: "KamzenTheNigga",
-        firstName: "Themba",
-        lastName: "Makamu",
-      },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    });
+      const resp = await axios.post(
+        "http://localhost:5000/auth/register",
+        userData
+      );
 
-    localStorage.setItem("token", resp.data.message.token);
-    localStorage.setItem("refresh", resp.data.message.refresh);
+      if(!resp.data.status){
+        return navigate('/login');
+      }
+
+    } catch (e) {
+      console.log(e.response.data);
+    }
   };
 
   return (
@@ -62,6 +59,7 @@ const Register = () => {
                 placeholder={"Email"}
                 className={"form-control"}
                 autoComplete={"on"}
+                onChange={handleChange}
               />
 
               <label htmlFor="password" className="form-label">
@@ -74,6 +72,7 @@ const Register = () => {
                 placeholder={"Password"}
                 className={"form-control"}
                 autoComplete={"off"}
+                onChange={handleChange}
               />
 
               <label htmlFor="username" className="form-label">
@@ -86,6 +85,7 @@ const Register = () => {
                 placeholder={"Username"}
                 className={"form-control"}
                 autoComplete={"on"}
+                onChange={handleChange}
               />
 
               <label htmlFor="firstname" className="form-label">
@@ -98,6 +98,7 @@ const Register = () => {
                 placeholder={"Firstname"}
                 className={"form-control"}
                 autoComplete={"on"}
+                onChange={handleChange}
               />
 
               <label htmlFor="lastname" className="form-label">
@@ -110,6 +111,7 @@ const Register = () => {
                 placeholder={"Lastname"}
                 className={"form-control"}
                 autoComplete={"on"}
+                onChange={handleChange}
               />
 
               <button

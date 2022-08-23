@@ -7,6 +7,7 @@ const {apiErrorHandler} = require("./middlewares/apiErrorHandler");
 const { ApiError } = require("./utils/response");
 const Define = require("./utils/Define");
 const cors = require('cors');
+const { createApiKey } = require("./utils/Helper");
 
 
 // Initialize App
@@ -51,6 +52,7 @@ app.use('*',(req,res,next) =>{
     next(new ApiError(Define.INVALID_METHOD,`Invalid route or you cannot ${req.method} to this route` ))
 })
 
+createApiKey();
 
 app.use(apiErrorHandler)
 

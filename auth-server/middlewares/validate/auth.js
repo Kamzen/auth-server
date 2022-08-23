@@ -4,7 +4,7 @@ const { errorResponse, ApiError } = require('../../utils/response');
 
 module.exports = {
 
-    loginValidate : async (req,res,next) => {
+    signUpValidate : async (req,res,next) => {
         
         const schema = yup.object().shape({
             email : yup.string().trim().required().email(),
@@ -26,5 +26,27 @@ module.exports = {
             return next(new ApiError(Define.UNPROCESSED,err.errors));
 
         }
+    },
+
+    loginValidate : async (req,res,next) => {
+
+        const schema = yup.object().shape({
+            email : yup.string().trim().required(),
+            password : yup.string().trim().required()
+        })
+
+        try{
+
+            await schema.validate(req.body,{
+                abortEarly : false
+            });
+            next();
+
+        }catch(err){
+
+            return next(new ApiError(Define.UNPROCESSED,err.errors));
+
+        }
+
     }
 }

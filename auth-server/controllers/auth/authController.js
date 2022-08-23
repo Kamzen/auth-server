@@ -131,38 +131,18 @@ const userController = {
         }
 
     },
+
     /**
-     * @description // check if usr is logged in
+     * @param {any} req
+     * @param {any} res
+     * @param {any} next
+     * @returns {any}
+     * @description get user info
      */
-    getUserInfo : (req,res, next) => {
+    getUserInfo : (req,res,next) => {
 
-        try{
-
-            // get token from request cookies
-            const token = req.cookies[process.env.COOKIE_ACCESS_TOKEN];
-
-            // console.log(req.cookies);
-
-            // if token not defined
-            if(!token) throw new ApiError(Define.UNAUTHORIZED, 'User not authorized');
-
-            // verify token
-            const loggedInUser = Helper.verifyJWTtoken(token);
-
-            if(loggedInUser.msg && loggedInUser.msg === 'jwt expired') throw new ApiError(Define.UNAUTHORIZED, 'User token expired');
-
-            // if token signature is not valid
-            if(!loggedInUser) throw new ApiError(Define.BAD_REQUEST, 'Invalid token signature');
-
-            // response
-            return res.status(Define.OK).json(ApiResponse('User authorized successful', {user : loggedInUser}));
-            
-
-        }catch(e){
-
-             next(e);
-
-        }
+        // response // you would get whatever userinfo that is neccessary for your use case
+        return res.status(Define.OK).json(ApiResponse('User authorized successful', {user : req.user}));
 
     },
      /**
@@ -182,7 +162,7 @@ const userController = {
             delete usr.iat;
 
             // update signed access token
-            const token = getJWTtoken(usr, '100s');
+            const token = getJWTtoken(usr, '360s');
 
             // update token to cookie
             res.cookie(process.env.COOKIE_ACCESS_TOKEN,token,Define.SESSION_COOKIE_OPTIONS);

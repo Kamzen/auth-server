@@ -11,7 +11,6 @@ module.exports = {
 
         }else{
 
-            console.log('lifetime token')
             return jwt.sign(payload, process.env.REFRESH_ACCESS_TOKEN);
 
         }

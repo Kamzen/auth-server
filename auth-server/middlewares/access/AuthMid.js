@@ -27,15 +27,15 @@ module.exports = {
     
             // verify token 
             const usr = Helper.verifyJWTtoken(token);   
+
+            // if usr is nullish
+            if(!usr) throw new ApiError(Define.UNAUTHORIZED, 'User not authorized');
     
             // check if user token expired
             if(usr.msg && usr.msg === 'jwt expired') throw new ApiError(Define.UNAUTHORIZED, 'User token expired');
     
             // check for invalid signature
             if(usr.msg && usr.msg === 'invalid signature') throw new ApiError(Define.UNAUTHORIZED, 'User token not valid');
-    
-            // if usr is nullish
-            if(!usr) throw new ApiError(Define.UNAUTHORIZED, 'User not authorized')
     
             // set user on request variable
             req.user = usr;

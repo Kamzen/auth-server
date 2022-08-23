@@ -156,8 +156,13 @@ const userController = {
 
             const refresh = req.cookies[process.env.COOKIE_REFRESH_TOKEN];
 
-            // verify token, but you would to check if the token is there somewhere
+            // check if token is set on cookies
+            if(!refresh) throw new ApiError(Define.UNAUTHORIZED, 'Hey your token seems not to be signed from here, bye chancer');
+
+            // verify token, just for extra extra security
             const usr = verifyJWTRefreshToken(refresh);
+
+            if(!usr) throw new ApiError(Define.UNAUTHORIZED, 'Invalid token');
 
             delete usr.iat;
 

@@ -15,7 +15,7 @@ authRouter.get('/getUserInfo',AuthMid, isLoggedIn, authController.getUserInfo);
 
 authRouter.get('/logout',authController.logout);
 
-authRouter.post('/refresh', authController.refreshToken)
+authRouter.post('/refresh', authController.refreshToken);
 
 authRouter.get('/authorized',AuthMid, isLoggedIn,(req,res) => {
     return res.json({
